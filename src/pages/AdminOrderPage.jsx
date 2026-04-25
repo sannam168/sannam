@@ -236,17 +236,7 @@ function OrderCard({ item, onSaved }) {
             <option>처리완료</option>
             <option>지연</option>
             <option>취소</option>
-          </select><select
-  value={status}
-  onChange={(e) => setStatus(e.target.value)}
-  style={inputStyle}
->
-  <option>주문접수</option>
-  <option>준비중</option>
-  <option>판매 완료</option>
-  <option>취소</option>
-  <option>지연</option>
-</select>
+          </select>
         </div>
 
         <div>
