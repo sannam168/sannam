@@ -41,29 +41,30 @@ function OrderStatusPage() {
     }
   }
 
-  const getStatusStyle = (status) => {
-    const base = {
-      display: 'inline-block',
-      padding: '8px 14px',
-      borderRadius: '999px',
-      fontSize: '13px',
-      fontWeight: 'bold',
-    }
+  function getStatusStyle(status) {
+  const base = {
+    padding: '6px 10px',
+    borderRadius: '999px',
+    fontSize: '12px',
+    fontWeight: '700'
+  }
 
-    if (status === '주문접수') {
-  return { ...base, background: '#dcfce7', color: '#166534' }
-}
-if (status === '준비중') {
-  return { ...base, background: '#dbeafe', color: '#1d4ed8' }
-}
-if (status === '판매 완료') {
-  return { ...base, background: '#bbf7d0', color: '#166534' }
-}
-if (status === '취소') {
-  return { ...base, background: '#fee2e2', color: '#b91c1c' }
-}
-if (status === '지연') {
-  return { ...base, background: '#fef3c7', color: '#b45309' }
+  if (status === '주문접수')
+    return { ...base, background: '#dcfce7', color: '#166534' }
+
+  if (status === '준비중')
+    return { ...base, background: '#dbeafe', color: '#1d4ed8' }
+
+  if (status === '판매 완료')
+    return { ...base, background: '#bbf7d0', color: '#166534' }
+
+  if (status === '취소')
+    return { ...base, background: '#fee2e2', color: '#b91c1c' }
+
+  if (status === '지연')
+    return { ...base, background: '#fef3c7', color: '#b45309' }
+
+  return base
 }
 
 
