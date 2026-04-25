@@ -181,7 +181,7 @@ function OrderStatusPage() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleSearch()
               }}
-              placeholder="예: MGP-ORD-001"
+              placeholder="예: MGP-0001"
               style={inputStyle}
             />
             <button onClick={handleSearch} style={searchButtonStyle}>

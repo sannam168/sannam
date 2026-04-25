@@ -65,9 +65,9 @@ function AdminOrderPage() {
     return {
       total: orderList.length,
       waiting: orderList.filter((v) => v.status === '주문접수').length,
-      checking: orderList.filter((v) => v.status === '확인중').length,
+      preparing: orderList.filter((v) => v.status === '준비중').length,
       delay: orderList.filter((v) => v.status === '지연').length,
-      done: orderList.filter((v) => v.status === '처리완료').length,
+      done: orderList.filter((v) => v.status === '판매 완료').length,
     }
   }, [orderList])
 
@@ -95,9 +95,9 @@ function AdminOrderPage() {
         <div style={summaryGridStyle}>
           <SummaryCard title="전체 주문" value={`${summary.total}건`} />
           <SummaryCard title="주문접수" value={`${summary.waiting}건`} />
-          <SummaryCard title="확인중" value={`${summary.checking}건`} />
+          <SummaryCard title="준비중" value={`${summary.preparing}건`} />
           <SummaryCard title="지연" value={`${summary.delay}건`} />
-          <SummaryCard title="처리완료" value={`${summary.done}건`} />
+          <SummaryCard title="판매 완료" value={`${summary.done}건`} />
         </div>
 
         <div style={filterBoxStyle}>
@@ -113,17 +113,17 @@ function AdminOrderPage() {
             />
 
             <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={inputStyle}
-            >
-              <option>전체 상태</option>
-              <option>주문접수</option>
-              <option>확인중</option>
-              <option>처리완료</option>
-              <option>지연</option>
-              <option>취소</option>
-            </select>
+  value={statusFilter}
+  onChange={(e) => setStatusFilter(e.target.value)}
+  style={inputStyle}
+>
+  <option>전체 상태</option>
+  <option>주문접수</option>
+  <option>준비중</option>
+  <option>판매 완료</option>
+  <option>취소</option>
+  <option>지연</option>
+</select>
 
             <button onClick={loadOrders} style={searchButtonStyle}>새로고침</button>
           </div>
@@ -236,7 +236,17 @@ function OrderCard({ item, onSaved }) {
             <option>처리완료</option>
             <option>지연</option>
             <option>취소</option>
-          </select>
+          </select><select
+  value={status}
+  onChange={(e) => setStatus(e.target.value)}
+  style={inputStyle}
+>
+  <option>주문접수</option>
+  <option>준비중</option>
+  <option>판매 완료</option>
+  <option>취소</option>
+  <option>지연</option>
+</select>
         </div>
 
         <div>
@@ -324,10 +334,10 @@ function getStatusBadgeStyle(status) {
   }
 
   if (status === '주문접수') return { ...base, background: '#dcfce7', color: '#166534' }
-  if (status === '확인중') return { ...base, background: '#dbeafe', color: '#1d4ed8' }
-  if (status === '처리완료') return { ...base, background: '#ecfccb', color: '#4d7c0f' }
-  if (status === '지연') return { ...base, background: '#fef3c7', color: '#b45309' }
-  if (status === '취소') return { ...base, background: '#fee2e2', color: '#b91c1c' }
+if (status === '준비중') return { ...base, background: '#dbeafe', color: '#1d4ed8' }
+if (status === '판매 완료') return { ...base, background: '#dcfce7', color: '#166534' }
+if (status === '취소') return { ...base, background: '#fee2e2', color: '#b91c1c' }
+if (status === '지연') return { ...base, background: '#fef3c7', color: '#b45309' }
 
   return { ...base, background: '#e5e7eb', color: '#374151' }
 }
