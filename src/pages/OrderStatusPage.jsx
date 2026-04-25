@@ -66,10 +66,7 @@ if (status === '지연') {
   return { ...base, background: '#fef3c7', color: '#b45309' }
 }
 
-    return { ...base, background: '#e5e7eb', color: '#374151' }
-  }
 
-  return (
     <div
       style={{
         minHeight: '100vh',
