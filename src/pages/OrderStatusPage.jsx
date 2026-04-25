@@ -327,7 +327,6 @@ function OrderStatusPage() {
         )}
       </div>
     </div>
-  )
 }
 
 function InfoBox({ label, value }) {
