@@ -51,20 +51,20 @@ function OrderStatusPage() {
     }
 
     if (status === '주문접수') {
-      return { ...base, background: '#dcfce7', color: '#166534' }
-    }
-    if (status === '확인중') {
-      return { ...base, background: '#dbeafe', color: '#1d4ed8' }
-    }
-    if (status === '처리완료') {
-      return { ...base, background: '#ecfccb', color: '#4d7c0f' }
-    }
-    if (status === '지연') {
-      return { ...base, background: '#fef3c7', color: '#b45309' }
-    }
-    if (status === '취소') {
-      return { ...base, background: '#fee2e2', color: '#b91c1c' }
-    }
+  return { ...base, background: '#dcfce7', color: '#166534' }
+}
+if (status === '준비중') {
+  return { ...base, background: '#dbeafe', color: '#1d4ed8' }
+}
+if (status === '판매 완료') {
+  return { ...base, background: '#bbf7d0', color: '#166534' }
+}
+if (status === '취소') {
+  return { ...base, background: '#fee2e2', color: '#b91c1c' }
+}
+if (status === '지연') {
+  return { ...base, background: '#fef3c7', color: '#b45309' }
+}
 
     return { ...base, background: '#e5e7eb', color: '#374151' }
   }
