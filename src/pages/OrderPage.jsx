@@ -86,6 +86,18 @@ function OrderPage() {
 
       if (!data.success) {
         setMessage(data.message || '주문 접수 중 오류가 발생했습니다.')
+		
+		const copyOrderNumber = async () => {
+  if (!result?.orderNumber) return
+
+  try {
+    await navigator.clipboard.writeText(result.orderNumber)
+    setMessage('주문번호가 복사되었습니다.')
+  } catch (error) {
+    setMessage('복사에 실패했습니다. 주문번호를 직접 선택해 복사해주세요.')
+  }
+}
+
         return
       }
 
@@ -142,7 +154,7 @@ function OrderPage() {
           <textarea
             value={request}
             onChange={(e) => setRequest(e.target.value)}
-            placeholder="요청사항이 있다면 입력해주세요."
+            placeholder="요청사항 및 물품을 수령하실 주소를 입력해 주세요. (ex. 도드랑거리 001상가 / 도스고등학교 통합교실)"
             style={textareaStyle}
           />
         </div>
