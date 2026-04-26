@@ -221,12 +221,43 @@ function OrderPage() {
           )}
 
           {result && (
-            <div style={resultBoxStyle}>
-              <div>주문번호: {result.orderNumber}</div>
-              <div>주문내역: {result.orderSummary}</div>
-              <div>총금액: {Number(result.totalPrice).toLocaleString()}원</div>
-            </div>
-          )}
+  <div style={resultBoxStyle}>
+    <div style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '12px' }}>
+      주문이 완료되었습니다!
+    </div>
+
+    <div style={orderNumberBoxStyle}>
+      <div style={{ fontSize: '13px', color: '#5b6b60', marginBottom: '6px' }}>
+        주문번호
+      </div>
+      <div style={orderNumberStyle}>{result.orderNumber}</div>
+    </div>
+
+    <div style={resultButtonRowStyle}>
+      <button onClick={copyOrderNumber} style={copyButtonStyle}>
+        주문번호 복사하기
+      </button>
+
+      <button
+        onClick={() => navigate('/order-status')}
+        style={goStatusButtonStyle}
+      >
+        주문 조회로 이동
+      </button>
+    </div>
+
+    <div style={orderNoticeStyle}>
+      주문번호를 잃어버리시면 주문 현황 조회가 어려울 수 있습니다.
+      <br />
+      아래 복사하기 버튼을 눌러 안전하게 보관해 주세요.
+    </div>
+
+    <div style={{ marginTop: '14px', lineHeight: 1.8 }}>
+      <div>주문내역: {result.orderSummary}</div>
+      <div>총금액: {Number(result.totalPrice).toLocaleString()}원</div>
+    </div>
+  </div>
+)}
         </div>
       </div>
     </div>
@@ -444,6 +475,60 @@ const resultBoxStyle = {
   color: '#14532d',
   lineHeight: 1.8,
   fontWeight: 'bold',
+}
+
+const orderNumberBoxStyle = {
+  background: 'white',
+  border: '1px solid #bbf7d0',
+  borderRadius: '16px',
+  padding: '16px',
+  marginBottom: '14px',
+}
+
+const orderNumberStyle = {
+  fontSize: '26px',
+  fontWeight: 'bold',
+  color: '#14532d',
+  wordBreak: 'break-all',
+}
+
+const resultButtonRowStyle = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+  gap: '10px',
+  marginBottom: '14px',
+}
+
+const copyButtonStyle = {
+  padding: '13px 14px',
+  borderRadius: '14px',
+  border: 'none',
+  background: 'linear-gradient(135deg, #166534, #22c55e)',
+  color: 'white',
+  fontSize: '15px',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+}
+
+const goStatusButtonStyle = {
+  padding: '13px 14px',
+  borderRadius: '14px',
+  border: '1px solid #bbf7d0',
+  background: 'white',
+  color: '#166534',
+  fontSize: '15px',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+}
+
+const orderNoticeStyle = {
+  background: '#fff7ed',
+  border: '1px solid #fed7aa',
+  color: '#9a3412',
+  borderRadius: '14px',
+  padding: '13px 14px',
+  fontSize: '14px',
+  lineHeight: 1.7,
 }
 
 export default OrderPage
