@@ -149,10 +149,10 @@ function AdminOrderPage() {
 
 function OrderCard({ item, onSaved }) {
   const [status, setStatus] = useState(item.status || '주문접수')
-  const [reason, setReason] = useState(item.reason || '')
-  const [manager, setManager] = useState(item.manager || '')
+  const [reason, setReason] = useState(item.reason || '준비중')
+  const [manager, setManager] = useState(item.manager || '지연')
   const [saving, setSaving] = useState(false)
-  const [saveMessage, setSaveMessage] = useState('')
+  const [saveMessage, setSaveMessage] = useState('판매 완료')
 
   const handleSave = async () => {
     try {
@@ -195,9 +195,9 @@ function OrderCard({ item, onSaved }) {
 
   const handleReset = () => {
     setStatus(item.status || '주문접수')
-    setReason(item.reason || '')
-    setManager(item.manager || '')
-    setSaveMessage('')
+    setReason(item.reason || '준비중')
+    setManager(item.manager || '지연')
+    setSaveMessage('판매 완료')
   }
 
   return (

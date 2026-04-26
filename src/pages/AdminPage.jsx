@@ -5,6 +5,7 @@ const ADMIN_PASSWORD = '1234'
 
 function AdminPage() {
   const navigate = useNavigate()
+
   const [password, setPassword] = useState('')
   const [isAuthed, setIsAuthed] = useState(
     sessionStorage.getItem('mgp_admin_auth') === 'true'
@@ -32,8 +33,9 @@ function AdminPage() {
     return (
       <div style={pageStyle}>
         <div style={loginBoxStyle}>
-          <h1 style={{ marginTop: 0, color: '#14532d' }}>관리자 인증</h1>
-          <p style={{ color: '#4b5563', lineHeight: 1.7 }}>
+          <h1 style={loginTitleStyle}>관리자 인증</h1>
+
+          <p style={loginTextStyle}>
             관리자 페이지에 접근하려면 비밀번호를 입력해주세요.
           </p>
 
@@ -68,9 +70,12 @@ function AdminPage() {
         <div style={heroStyle}>
           <div>
             <div style={badgeStyle}>MGP Admin Center</div>
+
             <h1 style={heroTitleStyle}>관리자 페이지</h1>
+
             <p style={heroTextStyle}>
-              주문 및 임대 관련 접수 내역을 확인하고 상태를 관리하는 관리자 전용 페이지입니다.
+              주문 및 임대 관련 접수 내역을 확인하고 상태를 관리하는 관리자 전용
+              페이지입니다.
             </p>
           </div>
 
@@ -78,6 +83,7 @@ function AdminPage() {
             <button onClick={() => navigate('/')} style={topButtonStyle}>
               메인으로
             </button>
+
             <button onClick={logout} style={topButtonStyle}>
               로그아웃
             </button>
@@ -121,8 +127,11 @@ function AdminCard({ title, text, buttonText, onClick }) {
   return (
     <div style={cardStyle}>
       <div style={iconStyle} />
+
       <h3 style={cardTitleStyle}>{title}</h3>
+
       <p style={cardTextStyle}>{text}</p>
+
       <button onClick={onClick} style={mainButtonStyle}>
         {buttonText}
       </button>
@@ -146,6 +155,19 @@ const loginBoxStyle = {
   padding: '28px',
   boxShadow: '0 14px 28px rgba(15, 23, 42, 0.08)',
   border: '1px solid rgba(34, 197, 94, 0.08)',
+}
+
+const loginTitleStyle = {
+  marginTop: 0,
+  marginBottom: '12px',
+  color: '#14532d',
+  fontSize: '30px',
+}
+
+const loginTextStyle = {
+  color: '#4b5563',
+  lineHeight: 1.7,
+  marginBottom: '18px',
 }
 
 const inputStyle = {
