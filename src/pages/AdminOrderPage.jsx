@@ -38,32 +38,55 @@ function AdminOrderPage() {
   }, [])
 
   const filteredList = useMemo(() => {
-    return orderList.filter((item) => {
-      const keyword = searchKeyword.trim().toLowerCase()
+    const statusPriority = {
+      주문접수: 1,
+      준비중: 2,
+      지연: 3,
+      '판매 완료': 4,
+      취소: 5,
+    }
 
-      const keywordMatch =
-        !keyword ||
-        [
-          item.orderNo,
-          item.minecraftName,
-          item.discordName,
-          item.orderSummary,
-          item.manager,
-        ]
-          .join(' ')
-          .toLowerCase()
-          .includes(keyword)
+    return orderList
+      .filter((item) => {
+        const keyword = searchKeyword.trim().toLowerCase()
 
-      const statusMatch =
-        statusFilter === '전체 상태' || item.status === statusFilter
+        const keywordMatch =
+          !keyword ||
+          [
+            item.orderNo,
+            item.minecraftName,
+            item.discordName,
+            item.orderSummary,
+            item.manager,
+          ]
+            .join(' ')
+            .toLowerCase()
+            .includes(keyword)
 
-      return keywordMatch && statusMatch
-    })
+        const statusMatch =
+          statusFilter === '전체 상태' || item.status === statusFilter
+
+        return keywordMatch && statusMatch
+      })
+      .sort((a, b) => {
+        const aNoManager = !a.manager || !a.manager.trim()
+        const bNoManager = !b.manager || !b.manager.trim()
+
+        if (aNoManager !== bNoManager) {
+          return aNoManager ? -1 : 1
+        }
+
+        const aPriority = statusPriority[a.status] || 99
+        const bPriority = statusPriority[b.status] || 99
+
+        return aPriority - bPriority
+      })
   }, [orderList, searchKeyword, statusFilter])
 
   const summary = useMemo(() => {
     return {
       total: orderList.length,
+      unassigned: orderList.filter((v) => !v.manager || !v.manager.trim()).length,
       waiting: orderList.filter((v) => v.status === '주문접수').length,
       preparing: orderList.filter((v) => v.status === '준비중').length,
       done: orderList.filter((v) => v.status === '판매 완료').length,
@@ -95,11 +118,11 @@ function AdminOrderPage() {
 
         <div style={summaryGridStyle}>
           <SummaryCard title="전체 주문" value={`${summary.total}건`} />
+          <SummaryCard title="미배정" value={`${summary.unassigned}건`} danger />
           <SummaryCard title="주문접수" value={`${summary.waiting}건`} />
           <SummaryCard title="준비중" value={`${summary.preparing}건`} />
           <SummaryCard title="판매 완료" value={`${summary.done}건`} />
-          <SummaryCard title="취소" value={`${summary.cancel}건`} />
-          <SummaryCard title="지연" value={`${summary.delay}건`} />
+          <SummaryCard title="취소 / 지연" value={`${summary.cancel + summary.delay}건`} />
         </div>
 
         <div style={filterBoxStyle}>
@@ -130,6 +153,10 @@ function AdminOrderPage() {
             <button onClick={loadOrders} style={searchButtonStyle}>새로고침</button>
           </div>
 
+          <div style={guideStyle}>
+            담당자가 없는 주문은 자동으로 상단에 표시됩니다.
+          </div>
+
           {errorMessage && <div style={errorBoxStyle}>{errorMessage}</div>}
         </div>
 
@@ -155,6 +182,8 @@ function OrderCard({ item, onSaved }) {
   const [manager, setManager] = useState(item.manager || '')
   const [saving, setSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState('')
+
+  const isUnassigned = !manager || !manager.trim()
 
   const handleSave = async () => {
     try {
@@ -203,14 +232,27 @@ function OrderCard({ item, onSaved }) {
   }
 
   return (
-    <div style={orderCardStyle}>
+    <div
+      style={{
+        ...orderCardStyle,
+        border: isUnassigned
+          ? '2px solid #fecaca'
+          : orderCardStyle.border,
+        boxShadow: isUnassigned
+          ? '0 16px 34px rgba(185, 28, 28, 0.12)'
+          : orderCardStyle.boxShadow,
+      }}
+    >
       <div style={orderHeaderStyle}>
         <div>
           <div style={smallLabelStyle}>주문번호</div>
           <div style={orderNoStyle}>{item.orderNo}</div>
         </div>
 
-        <span style={getStatusBadgeStyle(status)}>{status || '-'}</span>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          {isUnassigned && <span style={unassignedBadgeStyle}>미배정</span>}
+          <span style={getStatusBadgeStyle(status)}>{status || '-'}</span>
+        </div>
       </div>
 
       <div style={infoGridStyle}>
@@ -248,7 +290,11 @@ function OrderCard({ item, onSaved }) {
             value={manager}
             onChange={(e) => setManager(e.target.value)}
             placeholder="담당자 이름 입력"
-            style={inputStyle}
+            style={{
+              ...inputStyle,
+              borderColor: isUnassigned ? '#fca5a5' : '#cfe8cf',
+              background: isUnassigned ? '#fffafa' : 'white',
+            }}
           />
         </div>
       </div>
@@ -286,13 +332,19 @@ function OrderCard({ item, onSaved }) {
   )
 }
 
-function SummaryCard({ title, value }) {
+function SummaryCard({ title, value, danger }) {
   return (
-    <div style={summaryCardStyle}>
-      <div style={{ fontSize: '14px', color: '#5b6b60', marginBottom: '10px' }}>
+    <div
+      style={{
+        ...summaryCardStyle,
+        borderColor: danger ? '#fecaca' : 'rgba(34, 197, 94, 0.08)',
+        background: danger ? '#fffafa' : 'rgba(255,255,255,0.92)',
+      }}
+    >
+      <div style={{ fontSize: '14px', color: danger ? '#b91c1c' : '#5b6b60', marginBottom: '10px' }}>
         {title}
       </div>
-      <div style={{ fontSize: '30px', fontWeight: 'bold', color: '#14532d' }}>
+      <div style={{ fontSize: '30px', fontWeight: 'bold', color: danger ? '#b91c1c' : '#14532d' }}>
         {value}
       </div>
     </div>
@@ -425,6 +477,12 @@ const filterGridStyle = {
   display: 'grid',
   gridTemplateColumns: '2fr 1fr 160px',
   gap: '12px',
+}
+
+const guideStyle = {
+  marginTop: '12px',
+  color: '#667466',
+  fontSize: '14px',
 }
 
 const orderCardStyle = {
@@ -573,6 +631,16 @@ const buttonRowStyle = {
   justifyContent: 'flex-end',
   gap: '10px',
   flexWrap: 'wrap',
+}
+
+const unassignedBadgeStyle = {
+  display: 'inline-block',
+  padding: '8px 14px',
+  borderRadius: '999px',
+  fontSize: '13px',
+  fontWeight: 'bold',
+  background: '#fee2e2',
+  color: '#b91c1c',
 }
 
 const messageBoxStyle = {

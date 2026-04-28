@@ -1,0 +1,286 @@
+.mgp-home {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f7fbf7 0%, #eaf4ea 100%);
+  color: #1f2d1f;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.home-menu-btn {
+  position: fixed;
+  top: 22px;
+  left: 22px;
+  z-index: 20;
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.home-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 24px 40px;
+}
+
+.home-logo {
+  width: min(310px, 72vw);
+  border-radius: 28px;
+  margin-bottom: 34px;
+  box-shadow: 0 18px 45px rgba(55, 100, 55, 0.18);
+}
+
+.home-main h1 {
+  font-size: clamp(28px, 5vw, 48px);
+  margin: 0 0 18px;
+  font-weight: 800;
+}
+
+.home-main h2 {
+  font-size: clamp(20px, 3.2vw, 30px);
+  margin: 0 0 18px;
+  color: #2f6b38;
+  font-weight: 700;
+}
+
+.home-main p {
+  font-size: clamp(16px, 2.5vw, 21px);
+  line-height: 1.7;
+  margin: 0 0 34px;
+  color: #425242;
+}
+
+.home-start-btn {
+  padding: 15px 38px;
+  border: none;
+  border-radius: 999px;
+  background: #2f6b38;
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 12px 26px rgba(47, 107, 56, 0.28);
+  transition: 0.2s ease;
+}
+
+.home-start-btn:hover {
+  transform: translateY(-2px);
+  background: #24552c;
+}
+
+.home-footer {
+  text-align: center;
+  padding: 22px;
+  color: #6d7d6d;
+  font-size: 14px;
+}
+
+.home-menu-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 30;
+}
+
+.home-side-menu {
+  width: min(320px, 82vw);
+  height: 100%;
+  background: white;
+  padding: 28px 22px;
+  box-shadow: 12px 0 32px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: homeSlideIn 0.22s ease;
+}
+
+.home-side-menu h2 {
+  margin: 10px 0 4px;
+  font-size: 24px;
+  color: #2f6b38;
+}
+
+.home-side-menu p {
+  margin: 0 0 14px;
+  color: #6d7d6d;
+  font-size: 14px;
+}
+
+.home-side-menu button {
+  border: none;
+  border-radius: 14px;
+  padding: 15px 18px;
+  text-align: left;
+  background: #f3f7f3;
+  color: #1f2d1f;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.home-side-menu button:hover {
+  background: #e1efe1;
+}
+
+.home-close-btn {
+  align-self: flex-end;
+  width: 42px;
+  height: 42px;
+  text-align: center !important;
+  font-size: 24px !important;
+  padding: 0 !important;
+  background: #f1f1f1 !important;
+}
+
+@keyframes homeSlideIn {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+.menu-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.menu-section span {
+  margin: 10px 4px 2px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #2f6b38;
+  letter-spacing: -0.2px;
+}
+
+.menu-section button {
+  width: 100%;
+}
+
+.menu-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.menu-header-row h2 {
+  margin: 0;
+}
+
+.login-toggle-btn {
+  border: none;
+  background: #2f6b38;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-toggle-btn:hover {
+  background: #24552c;
+}
+
+.login-box {
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #e6eee6;
+}
+
+.menu-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.menu-top-bar h2 {
+  margin: 0;
+}
+
+.menu-login-btn {
+  border: none;
+  background: #2f6b38;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.menu-login-btn:hover {
+  background: #24552c;
+}
+
+.account-box {
+  margin-bottom: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e6eee6;
+}
+
+.logout-btn {
+  background: #ffecec !important;
+  color: #c0392b !important;
+}
+
+.logout-btn:hover {
+  background: #ffdada !important;
+}
+
+@media (max-width: 600px) {
+  .home-menu-btn {
+    top: 16px;
+    left: 16px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .home-logo {
+    width: min(250px, 78vw);
+  }
+
+  .home-main {
+    padding-top: 90px;
+  }
+
+  .home-start-btn {
+    width: 70%;
+    max-width: 260px;
+  }
+
+.home-side-menu .menu-section {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  width: 100%;
+}
+
+.home-side-menu .menu-section span {
+  display: block;
+  margin: 14px 4px 4px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #2f6b38;
+}
+
+.home-side-menu .menu-section button {
+  display: block !important;
+  width: 100% !important;
+  text-align: left !important;
+}
+}

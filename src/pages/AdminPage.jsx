@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 
 const ADMIN_PASSWORD = '1234'
 
@@ -11,6 +12,10 @@ function AdminPage() {
     sessionStorage.getItem('mgp_admin_auth') === 'true'
   )
   const [error, setError] = useState('')
+
+  const [profiles, setProfiles] = useState([])
+  const [orgMembers, setOrgMembers] = useState([])
+  const [orders, setOrders] = useState([])
 
   const login = () => {
     if (password === ADMIN_PASSWORD) {
@@ -29,14 +34,60 @@ function AdminPage() {
     setPassword('')
   }
 
+  async function loadDashboard() {
+    const { data: profileData } = await supabase
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    const { data: orgData } = await supabase
+      .from('organization_members')
+      .select('*')
+
+    setProfiles(profileData || [])
+    setOrgMembers(orgData || [])
+
+    try {
+      const response = await fetch('/api/admin-orders')
+      const data = await response.json()
+
+      if (data.success) {
+        setOrders(data.data || [])
+      }
+    } catch {
+      setOrders([])
+    }
+  }
+
+  useEffect(() => {
+    if (isAuthed) loadDashboard()
+  }, [isAuthed])
+
+  const stats = useMemo(() => {
+    const pendingStaff = profiles.filter((v) => v.status === 'pending').length
+    const activeStaff = profiles.filter((v) => v.status === 'active').length
+    const orgActive = orgMembers.filter((v) => v.status === 'active').length
+    const waitingOrders = orders.filter((v) => v.status === '주문접수').length
+
+    return {
+      waitingOrders,
+      pendingStaff,
+      activeStaff,
+      orgActive,
+    }
+  }, [profiles, orgMembers, orders])
+
+  const recentProfiles = profiles.slice(0, 4)
+
   if (!isAuthed) {
     return (
       <div style={pageStyle}>
         <div style={loginBoxStyle}>
+          <div style={loginBadgeStyle}>MGP Admin Center</div>
           <h1 style={loginTitleStyle}>관리자 인증</h1>
 
           <p style={loginTextStyle}>
-            관리자 페이지에 접근하려면 비밀번호를 입력해주세요.
+            관리자 기능을 사용하려면 비밀번호를 입력해 주세요.
           </p>
 
           <input
@@ -66,20 +117,25 @@ function AdminPage() {
 
   return (
     <div style={pageStyle}>
-      <div style={{ maxWidth: '1180px', margin: '0 auto' }}>
-        <div style={heroStyle}>
+      <div style={containerStyle}>
+        <section style={heroStyle}>
           <div>
             <div style={badgeStyle}>MGP Admin Center</div>
 
             <h1 style={heroTitleStyle}>관리자 페이지</h1>
 
             <p style={heroTextStyle}>
-              주문 및 임대 관련 접수 내역을 확인하고 상태를 관리하는 관리자 전용
-              페이지입니다.
+              샌남 회장님, 환영합니다.
+              <br />
+              주문, 임대, 직원, 조직도 정보를 관리하는 MGP 내부 관리자 센터입니다.
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <div style={topButtonBoxStyle}>
+            <button onClick={loadDashboard} style={topButtonStyle}>
+              새로고침
+            </button>
+
             <button onClick={() => navigate('/')} style={topButtonStyle}>
               메인으로
             </button>
@@ -88,23 +144,64 @@ function AdminPage() {
               로그아웃
             </button>
           </div>
-        </div>
+        </section>
 
-        <div style={noticeStyle}>
-          관리자 기능은 일반 사용자 화면과 분리되어 있습니다.
-          <br />
-          아래 메뉴에서 관리할 항목을 선택해 이동할 수 있습니다.
-        </div>
+        <section style={dashboardGridStyle}>
+          <StatCard title="주문 접수 대기" value={`${stats.waitingOrders}건`} />
+          <StatCard title="승인 대기 직원" value={`${stats.pendingStaff}명`} />
+          <StatCard title="활성 직원 계정" value={`${stats.activeStaff}명`} />
+          <StatCard title="조직도 인원" value={`${stats.orgActive}명`} />
+        </section>
 
-        <div style={{ margin: '0 0 18px' }}>
-          <div style={sectionTitleStyle}>관리자 메뉴</div>
-          <div style={sectionSubStyle}>
-            관리할 항목을 선택해 각 관리자 페이지로 이동하세요.
+        <section style={panelGridStyle}>
+          <div style={panelStyle}>
+            <h2 style={panelTitleStyle}>최근 가입 신청</h2>
+
+            {recentProfiles.length === 0 ? (
+              <p style={emptyTextStyle}>최근 가입 신청이 없습니다.</p>
+            ) : (
+              recentProfiles.map((user) => (
+                <div style={listItemStyle} key={user.id}>
+                  <div>
+                    <strong>{user.mc_nickname}</strong>
+                    <p>{user.email}</p>
+                  </div>
+                  <span style={statusStyle}>{user.status}</span>
+                </div>
+              ))
+            )}
           </div>
+
+          <div style={panelStyle}>
+            <h2 style={panelTitleStyle}>부서별 조직 인원</h2>
+
+            <DeptLine
+              title="식품부"
+              count={orgMembers.filter((v) => v.department === '식품부' && v.status === 'active').length}
+            />
+
+            <DeptLine
+              title="부동산부"
+              count={orgMembers.filter((v) => v.department === '부동산부' && v.status === 'active').length}
+            />
+
+            <DeptLine
+              title="본사"
+              count={orgMembers.filter((v) => v.department === '본사' && v.status === 'active').length}
+            />
+          </div>
+        </section>
+
+        <div style={sectionBoxStyle}>
+          <h2 style={sectionTitleStyle}>관리자 메뉴</h2>
+          <p style={sectionSubStyle}>
+            관리할 항목을 선택해 각 관리자 페이지로 이동하세요.
+          </p>
         </div>
 
         <div style={gridStyle}>
           <AdminCard
+            icon="🏠"
             title="임대 관리자"
             text="임대 신청 및 문의 목록을 확인하고 상태를 처리하는 페이지입니다."
             buttonText="임대 관리자 이동"
@@ -112,21 +209,76 @@ function AdminPage() {
           />
 
           <AdminCard
+            icon="🍱"
             title="주문 관리자"
             text="주문 목록, 상태, 취소 사유, 담당자를 관리하는 페이지입니다."
             buttonText="주문 관리자 이동"
             onClick={() => navigate('/admin/order')}
           />
+
+          <AdminCard
+            icon="👥"
+            title="직원 승인 관리"
+            text="직원 가입 신청을 확인하고 승인, 거절, 직급과 부서를 지정합니다."
+            buttonText="직원 승인 관리 이동"
+            onClick={() => navigate('/admin/staff')}
+          />
+
+          <AdminCard
+            icon="🏢"
+            title="조직도 관리"
+            text="조직원의 직급, 부서, 과, 상태를 수정하고 조직도에 반영합니다."
+            buttonText="조직도 관리 이동"
+            onClick={() => navigate('/admin/organization')}
+          />
+		  
+		  <AdminCard
+  icon="📢"
+  title="공지사항 관리"
+  text="일반 유저, 직원, 관리자 대상 공지사항을 작성하고 관리합니다."
+  buttonText="공지사항 관리 이동"
+  onClick={() => navigate('/admin/notices')}
+/>
         </div>
       </div>
     </div>
   )
 }
 
-function AdminCard({ title, text, buttonText, onClick }) {
+function StatCard({ title, value }) {
   return (
-    <div style={cardStyle}>
-      <div style={iconStyle} />
+    <div style={statCardStyle}>
+      <span>{title}</span>
+      <strong>{value}</strong>
+    </div>
+  )
+}
+
+function DeptLine({ title, count }) {
+  return (
+    <div style={deptLineStyle}>
+      <span>{title}</span>
+      <strong>{count}명</strong>
+    </div>
+  )
+}
+
+function AdminCard({ icon, title, text, buttonText, onClick }) {
+  const [hover, setHover] = useState(false)
+
+  return (
+    <div
+      style={{
+        ...cardStyle,
+        transform: hover ? 'translateY(-6px)' : 'translateY(0)',
+        boxShadow: hover
+          ? '0 20px 40px rgba(15, 23, 42, 0.12)'
+          : cardStyle.boxShadow,
+      }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <div style={iconStyle}>{icon}</div>
 
       <h3 style={cardTitleStyle}>{title}</h3>
 
@@ -142,26 +294,40 @@ function AdminCard({ title, text, buttonText, onClick }) {
 const pageStyle = {
   minHeight: '100vh',
   background: 'linear-gradient(180deg, #f4fbf4 0%, #eef8ef 45%, #e9f5ea 100%)',
-  fontFamily: 'Arial, sans-serif',
   padding: '28px 20px',
   color: '#1f2937',
+}
+
+const containerStyle = {
+  maxWidth: '1180px',
+  margin: '0 auto',
 }
 
 const loginBoxStyle = {
   maxWidth: '460px',
   margin: '80px auto',
   background: 'white',
-  borderRadius: '24px',
-  padding: '28px',
-  boxShadow: '0 14px 28px rgba(15, 23, 42, 0.08)',
-  border: '1px solid rgba(34, 197, 94, 0.08)',
+  borderRadius: '28px',
+  padding: '30px',
+  boxShadow: '0 18px 45px rgba(55, 100, 55, 0.14)',
+}
+
+const loginBadgeStyle = {
+  display: 'inline-block',
+  padding: '7px 12px',
+  borderRadius: '999px',
+  background: '#eef6ee',
+  color: '#2f6b38',
+  fontSize: '13px',
+  fontWeight: '800',
+  marginBottom: '12px',
 }
 
 const loginTitleStyle = {
   marginTop: 0,
   marginBottom: '12px',
   color: '#14532d',
-  fontSize: '30px',
+  fontSize: '32px',
 }
 
 const loginTextStyle = {
@@ -175,7 +341,6 @@ const inputStyle = {
   padding: '14px 16px',
   borderRadius: '14px',
   border: '1px solid #cfe8cf',
-  background: 'white',
   fontSize: '15px',
   boxSizing: 'border-box',
   marginBottom: '12px',
@@ -191,7 +356,6 @@ const mainButtonStyle = {
   cursor: 'pointer',
   background: 'linear-gradient(135deg, #166534, #22c55e)',
   color: 'white',
-  boxShadow: '0 10px 20px rgba(34, 197, 94, 0.18)',
 }
 
 const backButtonStyle = {
@@ -214,15 +378,14 @@ const errorStyle = {
   background: '#fff7ed',
   border: '1px solid #fed7aa',
   color: '#9a3412',
-  fontSize: '14px',
 }
 
 const heroStyle = {
   background: 'linear-gradient(135deg, #14532d 0%, #15803d 45%, #65a30d 100%)',
   color: 'white',
   padding: '34px 30px',
-  borderRadius: '28px',
-  marginBottom: '24px',
+  borderRadius: '30px',
+  marginBottom: '22px',
   boxShadow: '0 18px 40px rgba(22, 101, 52, 0.22)',
   display: 'flex',
   justifyContent: 'space-between',
@@ -243,7 +406,7 @@ const badgeStyle = {
 
 const heroTitleStyle = {
   margin: '0 0 10px 0',
-  fontSize: '36px',
+  fontSize: '38px',
   lineHeight: 1.2,
   fontWeight: 'bold',
 }
@@ -254,6 +417,12 @@ const heroTextStyle = {
   lineHeight: 1.8,
   opacity: 0.95,
   maxWidth: '720px',
+}
+
+const topButtonBoxStyle = {
+  display: 'flex',
+  gap: '10px',
+  flexWrap: 'wrap',
 }
 
 const topButtonStyle = {
@@ -267,15 +436,66 @@ const topButtonStyle = {
   cursor: 'pointer',
 }
 
-const noticeStyle = {
-  background: '#f7fff7',
-  border: '1px solid #d9f5d9',
-  borderRadius: '18px',
-  padding: '16px 18px',
+const dashboardGridStyle = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))',
+  gap: '14px',
+  marginBottom: '20px',
+}
+
+const statCardStyle = {
+  background: 'white',
+  borderRadius: '22px',
+  padding: '20px',
+  boxShadow: '0 12px 28px rgba(55, 100, 55, 0.09)',
+}
+
+const panelGridStyle = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+  gap: '18px',
   marginBottom: '30px',
-  color: '#355e3b',
-  lineHeight: 1.7,
-  boxShadow: '0 10px 24px rgba(34, 197, 94, 0.06)',
+}
+
+const panelStyle = {
+  background: 'white',
+  borderRadius: '24px',
+  padding: '22px',
+  boxShadow: '0 12px 28px rgba(55, 100, 55, 0.09)',
+}
+
+const panelTitleStyle = {
+  margin: '0 0 16px',
+  color: '#14532d',
+  fontSize: '22px',
+}
+
+const listItemStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  gap: '12px',
+  padding: '12px 0',
+  borderBottom: '1px solid #e5efe5',
+}
+
+const statusStyle = {
+  color: '#2f6b38',
+  fontWeight: 800,
+}
+
+const deptLineStyle = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  padding: '13px 0',
+  borderBottom: '1px solid #e5efe5',
+}
+
+const emptyTextStyle = {
+  color: '#667466',
+}
+
+const sectionBoxStyle = {
+  margin: '0 0 18px',
 }
 
 const sectionTitleStyle = {
@@ -295,33 +515,37 @@ const sectionSubStyle = {
 
 const gridStyle = {
   display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
   gap: '20px',
 }
 
 const cardStyle = {
-  background: 'rgba(255,255,255,0.92)',
-  borderRadius: '24px',
+  background: 'rgba(255,255,255,0.94)',
+  borderRadius: '26px',
   padding: '24px',
-  boxShadow: '0 14px 28px rgba(15, 23, 42, 0.07)',
+  boxShadow: '0 14px 30px rgba(15, 23, 42, 0.07)',
   border: '1px solid rgba(34, 197, 94, 0.08)',
   display: 'flex',
   flexDirection: 'column',
   minHeight: '280px',
+  transition: '0.22s ease',
 }
 
 const iconStyle = {
-  width: '52px',
-  height: '52px',
-  borderRadius: '15px',
+  width: '56px',
+  height: '56px',
+  borderRadius: '18px',
   background: 'linear-gradient(135deg, #dcfce7, #bbf7d0)',
   marginBottom: '16px',
-  boxShadow: 'inset 0 0 0 1px rgba(34, 197, 94, 0.18)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '26px',
 }
 
 const cardTitleStyle = {
   margin: '0 0 10px 0',
-  fontSize: '24px',
+  fontSize: '23px',
   color: '#111827',
   fontWeight: 'bold',
   textAlign: 'center',
